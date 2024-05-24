@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './components/AuthContext';
+import Home from  './components/home';
+import Auth from  './components/authentication';
 
-function App() {
+// CSS styles
+const styles = {
+  app: {
+    fontFamily: 'Arial, sans-serif',
+  },
+};
+
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/auth" />;
+};
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <AuthProvider>
+        <div style={styles.app}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                // <PrivateRoute>
+                  <Home />
+                // </PrivateRoute>
+              }
+            />
+            <Route path="/auth" element={<Auth />} />
+          </Routes>
+        </div>
+      </AuthProvider>
+    </Router>
   );
-}
+};
 
 export default App;
