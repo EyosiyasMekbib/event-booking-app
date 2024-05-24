@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from './AuthContext';
 
 // CSS styles
 const styles = {
@@ -41,28 +42,28 @@ const styles = {
     fontSize: '1.25rem',
     fontWeight: 'bold',
   },
-  eventCard: {
+  workoutCard: {
     display: 'flex',
     alignItems: 'start',
     gap: '16px',
     marginBottom: '16px',
   },
-  eventImage: {
+  workoutImage: {
     borderRadius: '8px',
     width: '100px',
     height: '100px',
     objectFit: 'cover',
   },
-  eventInfo: {
+  workoutInfo: {
     flex: 1,
   },
-  eventTitle: {
+  workoutTitle: {
     fontWeight: '500',
   },
-  eventDetails: {
+  workoutDetails: {
     fontSize: '0.875rem',
     color: '#6b7280',
-    marginBottom: '8px',  // Added margin-bottom for spacing
+    marginBottom: '8px',
   },
   button: {
     padding: '8px 16px',
@@ -112,37 +113,58 @@ const styles = {
     borderRadius: '8px',
     marginBottom: '16px',
   },
+  addWorkoutForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    marginBottom: '16px',
+  },
+  formInput: {
+    padding: '8px',
+    fontSize: '1rem',
+    borderRadius: '4px',
+    border: '1px solid #e5e7eb',
+  },
 };
 
 // Navbar Component
 const Navbar = () => {
+  const { logout, user } = useAuth();
+
   return (
     <div style={styles.navbar}>
-      <div>Event Manager</div>
+      <div>Fitness App</div>
       <div>
-        <a href="/auth" style={{ color: '#fff' }}>Logout</a>
+        {user && (
+          <>
+            <span style={{ marginRight: '16px' }}>{user.username} ({user.roles[0]})</span>
+            <button onClick={logout} style={{ ...styles.button, backgroundColor: 'transparent', border: '1px solid #fff', color: '#fff' }}>
+              Logout
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-// EventCard Component
-const EventCard = ({ title, date, location, image, onView }) => {
+// WorkoutCard Component
+const WorkoutCard = ({ title, date, duration, image, onView }) => {
   const defaultImage = "https://static.vecteezy.com/system/resources/thumbnails/004/141/669/small/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
 
   return (
-    <div style={styles.eventCard}>
+    <div style={styles.workoutCard}>
       <div className="flex-shrink-0">
         <img
-          alt="Event Image"
+          alt="Workout Image"
           src={image || defaultImage}
-          style={styles.eventImage}
+          style={styles.workoutImage}
         />
       </div>
-      <div style={styles.eventInfo}>
-        <div style={styles.eventTitle}>{title}</div>
-        <div style={styles.eventDetails}>{date}</div>
-        <div style={styles.eventDetails}>{location}</div>
+      <div style={styles.workoutInfo}>
+        <div style={styles.workoutTitle}>{title}</div>
+        <div style={styles.workoutDetails}>{date}</div>
+        <div style={styles.workoutDetails}>{duration}</div>
         <button onClick={onView} style={{ ...styles.button, ...styles.buttonOutline }}>
           View
         </button>
@@ -151,22 +173,22 @@ const EventCard = ({ title, date, location, image, onView }) => {
   );
 };
 
-// EventList Component
-const EventList = ({ title, events, onViewEvent }) => {
+// WorkoutList Component
+const WorkoutList = ({ title, workouts, onViewWorkout }) => {
   return (
     <div style={styles.card}>
       <div style={styles.cardHeader}>
         <div style={styles.cardTitle}>{title}</div>
       </div>
       <div>
-        {events.map((event, index) => (
-          <EventCard
+        {workouts.map((workout, index) => (
+          <WorkoutCard
             key={index}
-            title={event.title}
-            date={event.date}
-            location={event.location}
-            image={event.image}
-            onView={() => onViewEvent(event, title)}
+            title={workout.title}
+            date={workout.date}
+            duration={workout.duration}
+            image={workout.image}
+            onView={() => onViewWorkout(workout, title)}
           />
         ))}
       </div>
@@ -175,61 +197,123 @@ const EventList = ({ title, events, onViewEvent }) => {
 };
 
 // Modal Component
-const Modal = ({ event, onClose, disableBuy }) => {
+const Modal = ({ workout, onClose, disableView }) => {
   return (
     <div style={styles.modalBackdrop} onClick={onClose}>
       <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <img src={event.image} alt={event.title} style={styles.modalImage} />
-        <h2>{event.title}</h2>
-        <p>{event.date}</p>
-        <p>{event.location}</p>
-        <button style={{ ...styles.button, ...(disableBuy ? styles.buttonDisabled : {}) }} disabled={disableBuy}>
-          Buy
+        <img src={workout.image} alt={workout.title} style={styles.modalImage} />
+        <h2>{workout.title}</h2>
+        <p>{workout.date}</p>
+        <p>{workout.duration}</p>
+        <button style={{ ...styles.button, ...(disableView ? styles.buttonDisabled : {}) }} disabled={disableView}>
+          View
         </button>
       </div>
     </div>
   );
 };
 
+// AddWorkout Component
+const AddWorkout = ({ onAddWorkout }) => {
+  const [title, setTitle] = useState('');
+  const [date, setDate] = useState('');
+  const [duration, setDuration] = useState('');
+  const [image, setImage] = useState('');
+
+  const handleAddWorkout = (e) => {
+    e.preventDefault();
+    onAddWorkout({ title, date, duration, image });
+    setTitle('');
+    setDate('');
+    setDuration('');
+    setImage('');
+  };
+
+  return (
+    <div style={styles.card}>
+      <div style={styles.cardHeader}>
+        <div style={styles.cardTitle}>Add New Workout</div>
+      </div>
+      <form onSubmit={handleAddWorkout} style={styles.addWorkoutForm}>
+        <input
+          type="text"
+          placeholder="Workout Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          style={styles.formInput}
+          required
+        />
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          style={styles.formInput}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Duration"
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          style={styles.formInput}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+          style={styles.formInput}
+        />
+        <button type="submit" style={styles.button}>
+          Add Workout
+        </button>
+      </form>
+    </div>
+  );
+};
+
 // Home Component
 const Home = () => {
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [disableBuy, setDisableBuy] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const [disableView, setDisableView] = useState(false);
+  const [myWorkouts, setMyWorkouts] = useState([]);
+  const [pastWorkouts] = useState([
+    { title: 'Morning Yoga', date: 'June 15, 2023 - 7:00 AM', duration: '60 mins', image: 'https://via.placeholder.com/400' },
+    { title: 'HIIT Workout', date: 'July 10, 2023 - 6:00 PM', duration: '45 mins', image: 'https://via.placeholder.com/400' },
+    { title: 'Strength Training', date: 'August 5, 2023 - 5:00 PM', duration: '60 mins', image: 'https://via.placeholder.com/400' },
+  ]);
 
-  const events = [
-    { title: 'Annual Gala Dinner', date: 'June 15, 2023 - 7:00 PM', location: 'Grand Ballroom, Acme Hotel', image: 'https://via.placeholder.com/400' },
-    { title: 'Summer Picnic', date: 'July 10, 2023 - 12:00 PM', location: 'Acme Park', image: 'https://via.placeholder.com/400' },
-    { title: 'Holiday Party', date: 'December 15, 2023 - 7:00 PM', location: 'Acme Ballroom', image: 'https://via.placeholder.com/400' },
-    { title: 'Company Retreat', date: 'August 1, 2023 - August 5, 2023', location: 'Acme Resort, Napa Valley', image: 'https://via.placeholder.com/400' },
-    { title: 'Charity Gala', date: 'November 10, 2023 - 6:00 PM', location: 'Acme Convention Center', image: 'https://via.placeholder.com/400' },
-    { title: 'Team Building Retreat', date: 'September 15, 2023 - September 17, 2023', location: 'Acme Retreat Center, Malibu', image: 'https://via.placeholder.com/400' },
-    { title: 'Spring Networking Event', date: 'April 20, 2023 - 6:00 PM', location: 'Acme Rooftop, San Francisco', image: 'https://via.placeholder.com/400' },
-    { title: 'Holiday Party 2022', date: 'December 10, 2022 - 7:00 PM', location: 'Acme Ballroom', image: 'https://via.placeholder.com/400' },
-    { title: 'Summer Picnic 2022', date: 'July 15, 2022 - 12:00 PM', location: 'Acme Park', image: 'https://via.placeholder.com/400' }
-  ];
-
-  const handleViewEvent = (event, listTitle) => {
-    setSelectedEvent(event);
-    setDisableBuy(listTitle === "My Events" || listTitle === "Past Events");
+  const handleViewWorkout = (workout, listTitle) => {
+    setSelectedWorkout(workout);
+    setDisableView(listTitle === "Past Workouts");
   };
 
   const handleCloseModal = () => {
-    setSelectedEvent(null);
+    setSelectedWorkout(null);
+  };
+
+  const handleAddWorkout = (newWorkout) => {
+    setMyWorkouts([...myWorkouts, newWorkout]);
   };
 
   return (
     <div>
       <Navbar />
       <div style={styles.container}>
-        <EventList title="My Events" events={events} onViewEvent={handleViewEvent} />
-        <EventList title="Current Bought" events={events} onViewEvent={handleViewEvent} />
-        <EventList title="Past Events" events={events} onViewEvent={handleViewEvent} />
+        <div style={{ flex: 2 }}>
+          <WorkoutList title="My Workouts" workouts={myWorkouts} onViewWorkout={handleViewWorkout} />
+          <WorkoutList title="Past Workouts" workouts={pastWorkouts} onViewWorkout={handleViewWorkout} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <AddWorkout onAddWorkout={handleAddWorkout} />
+        </div>
       </div>
-      {selectedEvent && (
+      {selectedWorkout && (
         <Modal
-          event={selectedEvent}
+          workout={selectedWorkout}
           onClose={handleCloseModal}
-          disableBuy={disableBuy}
+          disableView={disableView}
         />
       )}
     </div>
