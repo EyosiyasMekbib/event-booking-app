@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/AuthContext';
-import Home from  './components/home';
-import Auth from  './components/authentication';
+import Home from './components/home';
+import Auth from './components/authentication';
 
 // CSS styles
 const styles = {
@@ -25,9 +25,9 @@ const App = () => {
             <Route
               path="/"
               element={
-                // <PrivateRoute>
+                <PrivateRoute>
                   <Home />
-                // </PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route path="/auth" element={<Auth />} />

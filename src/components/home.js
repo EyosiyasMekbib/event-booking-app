@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from './AuthContext';
 
 // CSS styles
 const styles = {
@@ -62,7 +63,7 @@ const styles = {
   eventDetails: {
     fontSize: '0.875rem',
     color: '#6b7280',
-    marginBottom: '8px',  // Added margin-bottom for spacing
+    marginBottom: '8px',
   },
   button: {
     padding: '8px 16px',
@@ -116,11 +117,20 @@ const styles = {
 
 // Navbar Component
 const Navbar = () => {
+  const { logout, user } = useAuth();
+
   return (
     <div style={styles.navbar}>
       <div>Event Manager</div>
       <div>
-        <a href="/auth" style={{ color: '#fff' }}>Logout</a>
+        {user && (
+          <>
+            <span style={{ marginRight: '16px' }}>{user.username} ({user.roles[0]})</span>
+            <button onClick={logout} style={{ ...styles.button, backgroundColor: 'transparent', border: '1px solid #fff', color: '#fff' }}>
+              Logout
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

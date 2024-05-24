@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 
 // CSS styles
@@ -24,7 +23,6 @@ const styles = {
   },
   formGroup: {
     marginBottom: '20px',
-    width: '100%',
   },
   input: {
     width: '100%',
@@ -79,10 +77,11 @@ const Auth = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState(['user']);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const { login, signup } = useAuth();
 
   const handleToggle = () => {
     setIsLogin(!isLogin);
@@ -90,31 +89,36 @@ const Auth = () => {
     setSuccess('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setLoading(true);
 
     if (!username || !password || (!isLogin && !email)) {
       setError('All fields are required');
+      setLoading(false);
       return;
     }
 
     if (isLogin) {
-      // Perform login
-      const result = login(username, password);
-      if (result) {
-        navigate('/');
-      } else {
+      const result = await login(username, password);
+      setLoading(false);
+      if (!result) {
         setError('Invalid username or password');
       }
     } else {
-      // Mock signup logic
-      setSuccess('Signup successful! You can now log in.');
-      setTimeout(() => {
-        setIsLogin(true);
-        setSuccess('');
-      }, 2000);
+      const result = await signup(username, email, password, role);
+      setLoading(false);
+      if (result) {
+        setSuccess('Signup successful! You can now log in.');
+        setTimeout(() => {
+          setIsLogin(true);
+          setSuccess('');
+        }, 2000);
+      } else {
+        setError('Signup failed');
+      }
     }
   };
 
@@ -140,7 +144,7 @@ const Auth = () => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
+            style={styles.input}
             />
           </div>
         )}
@@ -153,13 +157,25 @@ const Auth = () => {
             style={styles.input}
           />
         </div>
+        {!isLogin && (
+          <div style={styles.formGroup}>
+            <select
+              value={role}
+              onChange={(e) => setRole([e.target.value])}
+              style={styles.input}
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="mod">Moderator</option>
+            </select>
+          </div>
+        )}
         <button
           type="submit"
           style={styles.button}
-          onMouseOver={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
-          onMouseOut={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
+          disabled={loading}
         >
-          {isLogin ? 'Login' : 'Signup'}
+          {loading ? 'Loading...' : isLogin ? 'Login' : 'Signup'}
         </button>
         <div style={styles.toggleLink} onClick={handleToggle}>
           {isLogin ? 'Don\'t have an account? Signup' : 'Already have an account? Login'}
