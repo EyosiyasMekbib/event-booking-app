@@ -9,14 +9,18 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#fff',
+    backgroundImage: `url('https://img.freepik.com/free-photo/young-african-woman-running-isolated-white-studio-background-one-female-runner-jogger-silhouette-jogging-athlete_155003-34511.jpg?w=996&t=st=1716809312~exp=1716809912~hmac=93fc785a10d07587e5ae088e1d9d31c23aa3e06bf3fcd2b2137d957c68b82405')`,
+    backgroundSize: '',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'start',
     padding: '20px',
   },
   form: {
     backgroundColor: '#fff',
     padding: '30px 20px',
     borderRadius: '10px',
-    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+    // boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
     width: '100%',
     maxWidth: '400px',
     textAlign: 'center',
@@ -26,7 +30,7 @@ const styles = {
   },
   input: {
     width: '100%',
-    padding: '10px',
+    padding: '12px',
     marginBottom: '10px',
     borderRadius: '5px',
     border: '1px solid #d1d5db',
@@ -38,7 +42,7 @@ const styles = {
     padding: '12px',
     borderRadius: '5px',
     border: 'none',
-    backgroundColor: '#2563eb',
+    backgroundColor: '#111111',
     color: '#fff',
     fontWeight: 'bold',
     cursor: 'pointer',
@@ -46,7 +50,7 @@ const styles = {
     transition: 'background-color 0.3s ease',
   },
   buttonHover: {
-    backgroundColor: '#1e40af',
+    backgroundColor: '#111111',
   },
   toggleLink: {
     marginTop: '10px',
@@ -77,7 +81,7 @@ const Auth = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(['user']);
+  const [role, setRole] = useState('user');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -101,13 +105,12 @@ const Auth = () => {
       return;
     }
 
-    
     if (username.length < 3 || username.length > 20) {
-      setError('username must be between 3 and 20 characters');
+      setError('Username must be between 3 and 20 characters');
       setLoading(false);
       return;
     }
-    
+
     if (password.length < 6 || password.length > 40) {
       setError('Password must be between 6 and 40 characters');
       setLoading(false);
@@ -157,7 +160,7 @@ const Auth = () => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            style={styles.input}
+              style={styles.input}
             />
           </div>
         )}
@@ -170,19 +173,7 @@ const Auth = () => {
             style={styles.input}
           />
         </div>
-        {!isLogin && (
-          <div style={styles.formGroup}>
-            <select
-              value={role}
-              onChange={(e) => setRole([e.target.value])}
-              style={styles.input}
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-              <option value="mod">Moderator</option>
-            </select>
-          </div>
-        )}
+        
         <button
           type="submit"
           style={styles.button}
@@ -191,7 +182,7 @@ const Auth = () => {
           {loading ? 'Loading...' : isLogin ? 'Login' : 'Signup'}
         </button>
         <div style={styles.toggleLink} onClick={handleToggle}>
-          {isLogin ? 'Don\'t have an account? Signup' : 'Already have an account? Login'}
+          {isLogin ? 'Don\'t have an account?' : 'Already have an account?'}
         </div>
       </form>
     </div>
