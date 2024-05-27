@@ -101,6 +101,19 @@ const Auth = () => {
       return;
     }
 
+    
+    if (username.length < 3 || username.length > 20) {
+      setError('username must be between 3 and 20 characters');
+      setLoading(false);
+      return;
+    }
+    
+    if (password.length < 6 || password.length > 40) {
+      setError('Password must be between 6 and 40 characters');
+      setLoading(false);
+      return;
+    }
+
     if (isLogin) {
       const result = await login(username, password);
       setLoading(false);

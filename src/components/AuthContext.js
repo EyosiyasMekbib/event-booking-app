@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await fetch('https://5z9sttfs-8080.euw.devtunnels.ms/api/auth/signin', {
+      const response = await fetch('http://localhost:8080/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -34,13 +34,13 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (username, email, password, role) => {
     try {
-      const response = await fetch('https://5z9sttfs-8080.euw.devtunnels.ms/api/auth/signup', {
+      const response = await fetch('http://localhost:8080/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password, role }),
       });
       if (response.ok) {
-        navigate('/auth');
+        navigate('/api/auth/signin');
         return true;
       }
       throw new Error('Signup failed');
