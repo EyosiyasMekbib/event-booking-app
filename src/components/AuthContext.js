@@ -32,15 +32,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (username, email, password, role) => {
+  const signup = async (username, email, password, height, weight) => {
     try {
       const response = await fetch('https://5z9sttfs-8080.euw.devtunnels.ms/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, role }),
+        body: JSON.stringify({ username, email, password, height, weight }),
       });
       if (response.ok) {
-        navigate('/api/auth/signin');
+        navigate('/auth');
         return true;
       }
       throw new Error('Signup failed');

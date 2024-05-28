@@ -11,16 +11,15 @@ const styles = {
     height: '100vh',
     backgroundColor: '#fff',
     backgroundImage: `url('https://img.freepik.com/free-photo/young-african-woman-running-isolated-white-studio-background-one-female-runner-jogger-silhouette-jogging-athlete_155003-34511.jpg?w=996&t=st=1716809312~exp=1716809912~hmac=93fc785a10d07587e5ae088e1d9d31c23aa3e06bf3fcd2b2137d957c68b82405')`,
-    backgroundSize: '',
+    backgroundSize: 'cover',
     backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'start',
+    backgroundPosition: 'center',
     padding: '20px',
   },
   form: {
     backgroundColor: '#fff',
     padding: '30px 20px',
     borderRadius: '10px',
-    // boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
     width: '100%',
     maxWidth: '400px',
     textAlign: 'center',
@@ -81,6 +80,8 @@ const Auth = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
   const [role, setRole] = useState('user');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -99,7 +100,7 @@ const Auth = () => {
     setSuccess('');
     setLoading(true);
 
-    if (!username || !password || (!isLogin && !email)) {
+    if (!username || !password || (!isLogin && (!email || !weight || !height))) {
       setError('All fields are required');
       setLoading(false);
       return;
@@ -124,7 +125,7 @@ const Auth = () => {
         setError('Invalid username or password');
       }
     } else {
-      const result = await signup(username, email, password, role);
+      const result = await signup(username, email, password, height, weight, role);
       setLoading(false);
       if (result) {
         setSuccess('Signup successful! You can now log in.');
@@ -154,15 +155,35 @@ const Auth = () => {
           />
         </div>
         {!isLogin && (
-          <div style={styles.formGroup}>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={styles.input}
-            />
-          </div>
+          <>
+            <div style={styles.formGroup}>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={styles.input}
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <input
+                type="number"
+                placeholder="Weight (kg)"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                style={styles.input}
+              />
+            </div>
+            <div style={styles.formGroup}>
+              <input
+                type="number"
+                placeholder="Height (cm)"
+                value={height}
+                onChange={(e) => setHeight(e.target.value)}
+                style={styles.input}
+              />
+            </div>
+          </>
         )}
         <div style={styles.formGroup}>
           <input
@@ -182,7 +203,7 @@ const Auth = () => {
           {loading ? 'Loading...' : isLogin ? 'Login' : 'Signup'}
         </button>
         <div style={styles.toggleLink} onClick={handleToggle}>
-          {isLogin ? 'Don\'t have an account?' : 'Already have an account?'}
+          {isLogin ? 'Don\'t have an account? Signup' : 'Already have an account? Login'}
         </div>
       </form>
     </div>
