@@ -25,9 +25,9 @@ const App = () => {
             <Route
               path="/"
               element={
-                <PrivateRoute>
+                // <PrivateRoute>
                   <Home />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route path="/auth" element={<Auth />} />

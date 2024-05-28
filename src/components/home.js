@@ -1,204 +1,204 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from './AuthContext';
-// import {
-//   fetchCurrentUser,
-//   fetchExercises,
-//   addExercise,
-//   fetchUserWorkouts,
-//   addWorkout,
-// } from './service';
+  import React, { useEffect, useState } from 'react';
+  import { useAuth } from './AuthContext';
+  // import {
+  //   fetchCurrentUser,
+  //   fetchExercises,
+  //   addExercise,
+  //   fetchUserWorkouts,
+  //   addWorkout,
+  // } from './service';
 
-import { saveToLocalStorage, getFromLocalStorage } from './localStorageUtils';
+  import { saveToLocalStorage, getFromLocalStorage } from './localStorageUtils';
 
-// CSS styles
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-    fontFamily: 'Poppins, sans-serif',
-  },
-  mainContent: {
-    display: 'flex',
-    flexDirection: 'row',
-    flex: 1,
-  },
-  leftColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '70%',
-  },
-  rightColumn: {
-    width: '30%',
-    margin: '20px',
-  },
-  profileCard: {
-    margin: '20px',
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  },
-  profileContainer: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  profileDetails: {
-    marginLeft: '20px',
-    width: '100%',
-  },
-  profilePicture: {
-    width: '100px',
-    height: '100px',
-    borderRadius: '50%',
-    objectFit: 'cover',
-  },
-  detailItem: {
-    margin: '5px 0',
-  },
-  progressContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: '5px',
-  },
-  progressBarContainer: {
-    position: 'relative',
-    width: '100%',
-    height: '20px',
-    backgroundColor: '#e0e0e0',
-    borderRadius: '10px',
-    overflow: 'hidden',
-    marginLeft: '10px',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: '10px',
-    width: '0%',
-    animation: 'progress 2s ease-in-out forwards',
-  },
-  '@keyframes progress': {
-    '0%': { width: '0%' },
-    '100%': { width: '75%' }, // Example to simulate progress
-  },
-  navbar: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '20px 20px',
-    backgroundColor: '#001529',
-    color: '#fff',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  },
-  button: {
-    padding: '8px 16px',
-    fontSize: '0.875rem',
-    fontWeight: '500',
-    color: '#fff',
-    backgroundColor: '#ff474c',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    textDecoration: 'none',
-    transition: 'background-color 0.3s ease',
-  },
-  buttonOutline: {
-    backgroundColor: 'transparent',
-    border: '1px solid #ff474c',
-    color: '#ff474c',
-    transition: 'background-color 0.3s ease, color 0.3s ease',
-  },
-  buttonHover: {
-    backgroundColor: '#ff474c',
-    color: '#fff',
-  },
-  createButton: {
-    marginBottom: '20px',
-    display: 'block',
-    width: '100%',
-  },
-  addButton: {
-    marginLeft: '10px',
-  },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  username: {
-    marginRight: '16px',
-    textTransform: 'capitalize',
-  },
-  workoutsCard: {
-    margin: '20px',
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-  },
-  cardHeader: {
-    fontSize: '1.25rem',
-    fontWeight: 'bold',
-    marginBottom: '10px',
-  },
-  exerciseCard: {
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    height: 'calc(100vh - 20vh)', // Adjust to full height minus margins
-    overflowY: 'auto',
-  },
-  exerciseList: {
-    listStyleType: 'none',
-    padding: 0,
-  },
-  exerciseListItem: {
-    padding: '10px',
-    borderBottom: '1px solid #e0e0e0',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
-  },
-  exerciseListItemHover: {
-    backgroundColor: '#f0f0f0',
-  },
-  modalBackdrop: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    width: '400px',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-  },
-  formGroup: {
-    marginBottom: '15px',
-  },
-  formLabel: {
-    marginBottom: '5px',
-    display: 'block',
-    fontWeight: '500',
-  },
-  formInput: {
-    width: '100%',
-    padding: '8px',
-    fontSize: '1rem',
-    borderRadius: '4px',
-    border: '1px solid #e0e0e0',
-    boxSizing: 'border-box',
-  },
-};
+  // CSS styles
+  const styles = {
+    container: {
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100vh',
+      fontFamily: 'Poppins, sans-serif',
+    },
+    mainContent: {
+      display: 'flex',
+      flexDirection: 'row',
+      flex: 1,
+    },
+    leftColumn: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '70%',
+    },
+    rightColumn: {
+      width: '30%',
+      margin: '20px',
+    },
+    profileCard: {
+      margin: '20px',
+      padding: '20px',
+      backgroundColor: '#fff',
+      borderRadius: '8px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    },
+    profileContainer: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+    profileDetails: {
+      marginLeft: '20px',
+      width: '100%',
+    },
+    profilePicture: {
+      width: '100px',
+      height: '100px',
+      borderRadius: '50%',
+      objectFit: 'cover',
+    },
+    detailItem: {
+      margin: '5px 0',
+    },
+    progressContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      marginTop: '5px',
+    },
+    progressBarContainer: {
+      position: 'relative',
+      width: '100%',
+      height: '20px',
+      backgroundColor: '#e0e0e0',
+      borderRadius: '10px',
+      overflow: 'hidden',
+      marginLeft: '10px',
+    },
+    progressBar: {
+      height: '100%',
+      borderRadius: '10px',
+      width: '0%',
+      animation: 'progress 2s ease-in-out forwards',
+    },
+    '@keyframes progress': {
+      '0%': { width: '0%' },
+      '100%': { width: '75%' }, // Example to simulate progress
+    },
+    navbar: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '20px 20px',
+      backgroundColor: '#001529',
+      color: '#fff',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    },
+    button: {
+      padding: '8px 16px',
+      fontSize: '0.875rem',
+      fontWeight: '500',
+      color: '#fff',
+      backgroundColor: '#ff474c',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      textDecoration: 'none',
+      transition: 'background-color 0.3s ease',
+    },
+    buttonOutline: {
+      backgroundColor: 'transparent',
+      border: '1px solid #ff474c',
+      color: '#ff474c',
+      transition: 'background-color 0.3s ease, color 0.3s ease',
+    },
+    buttonHover: {
+      backgroundColor: '#ff474c',
+      color: '#fff',
+    },
+    createButton: {
+      marginBottom: '20px',
+      display: 'block',
+      width: '100%',
+    },
+    addButton: {
+      marginLeft: '10px',
+    },
+    userInfo: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+    username: {
+      marginRight: '16px',
+      textTransform: 'capitalize',
+    },
+    workoutsCard: {
+      margin: '20px',
+      padding: '20px',
+      backgroundColor: '#fff',
+      borderRadius: '8px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    },
+    cardHeader: {
+      fontSize: '1.25rem',
+      fontWeight: 'bold',
+      marginBottom: '10px',
+    },
+    exerciseCard: {
+      padding: '20px',
+      backgroundColor: '#fff',
+      borderRadius: '8px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      height: 'calc(100vh - 20vh)', // Adjust to full height minus margins
+      overflowY: 'auto',
+    },
+    exerciseList: {
+      listStyleType: 'none',
+      padding: 0,
+    },
+    exerciseListItem: {
+      padding: '10px',
+      borderBottom: '1px solid #e0e0e0',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease',
+    },
+    exerciseListItemHover: {
+      backgroundColor: '#f0f0f0',
+    },
+    modalBackdrop: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+    },
+    modalContent: {
+      backgroundColor: '#fff',
+      padding: '20px',
+      borderRadius: '8px',
+      width: '400px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+    },
+    formGroup: {
+      marginBottom: '15px',
+    },
+    formLabel: {
+      marginBottom: '5px',
+      display: 'block',
+      fontWeight: '500',
+    },
+    formInput: {
+      width: '100%',
+      padding: '8px',
+      fontSize: '1rem',
+      borderRadius: '4px',
+      border: '1px solid #e0e0e0',
+      boxSizing: 'border-box',
+    },
+  };
 
 // CSS styles (same as before)
 
@@ -313,16 +313,25 @@ const Home = () => {
     profilePicture: '',
     weight: 70,
     height: 175,
-    progress: 75, // Example progress value
+    progress: 0,
   });
 
-  // Load data from local storage
   useEffect(() => {
     const storedExercises = getFromLocalStorage('exercises');
     const storedWorkouts = getFromLocalStorage('workouts');
     if (storedExercises) setExercises(storedExercises);
     if (storedWorkouts) setMyWorkouts(storedWorkouts);
+    const progress = calculateProgress(storedWorkouts);
+    setUserData((prevData) => ({ ...prevData, progress }));
   }, []);
+
+  const calculateProgress = (workouts) => {
+    if (!workouts || workouts.length === 0) return 0;
+    const filledWorkouts = workouts.filter(workout => workout.sets && workout.reps && workout.duration);
+    const totalWorkouts = workouts.length;
+    const progress = (filledWorkouts.length / totalWorkouts) * 100;
+    return Math.min(progress, 100);
+  };
 
   const handleCreateExercise = (exercise) => {
     const updatedExercises = [...exercises, { ...exercise, id: exercises.length + 1 }];
@@ -335,6 +344,8 @@ const Home = () => {
       const updatedWorkouts = [...myWorkouts, exercise];
       setMyWorkouts(updatedWorkouts);
       saveToLocalStorage('workouts', updatedWorkouts);
+      const progress = calculateProgress(updatedWorkouts);
+      setUserData((prevData) => ({ ...prevData, progress }));
     }
   };
 
@@ -342,6 +353,8 @@ const Home = () => {
     const updatedWorkouts = myWorkouts.map(w => w.id === workout.id ? workout : w);
     setMyWorkouts(updatedWorkouts);
     saveToLocalStorage('workouts', updatedWorkouts);
+    const progress = calculateProgress(updatedWorkouts);
+    setUserData((prevData) => ({ ...prevData, progress }));
     setIsWorkoutModalOpen(false);
   };
 
@@ -433,9 +446,13 @@ const Home = () => {
                 >
                   <div>
                     <strong>{workout.name}</strong> - {workout.description}
-                  </div>
-                  <div>
-                    <strong>Sets:</strong> {workout.sets} <strong>Reps:</strong> {workout.reps} <strong>Duration:</strong> {workout.duration} min
+                    {workout.sets && workout.reps && workout.duration && (
+                      <>
+                        <div><strong>Sets:</strong> {workout.sets}</div>
+                        <div><strong>Reps:</strong> {workout.reps}</div>
+                        <div><strong>Duration:</strong> {workout.duration} mins</div>
+                      </>
+                    )}
                   </div>
                 </li>
               ))}
