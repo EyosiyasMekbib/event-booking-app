@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
-import {
-  fetchCurrentUser,
-  fetchExercises,
-  addExercise,
-  fetchUserWorkouts,
-  addWorkout,
-} from './service';
+// import {
+//   fetchCurrentUser,
+//   fetchExercises,
+//   addExercise,
+//   fetchUserWorkouts,
+//   addWorkout,
+// } from './service';
+
+import { saveToLocalStorage, getFromLocalStorage } from './localStorageUtils';
 
 // CSS styles
 const styles = {
@@ -198,6 +200,8 @@ const styles = {
   },
 };
 
+// CSS styles (same as before)
+
 const Modal = ({ onClose, onSubmit }) => {
   const [exerciseName, setExerciseName] = useState('');
   const [exerciseDescription, setExerciseDescription] = useState('');
@@ -298,49 +302,46 @@ const WorkoutModal = ({ workout, onClose, onSubmit }) => {
 
 const Home = () => {
   const { user, logout } = useAuth();
-  const token = localStorage.getItem('accessToken');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [myWorkouts, setMyWorkouts] = useState([]);
   const [userData, setUserData] = useState({
-    username: '',
-    roles: [],
+    username: 'John Doe',
+    roles: ['Admin'],
     profilePicture: '',
-    weight: 0,
-    height: 0,
-    progress: 0,
+    weight: 70,
+    height: 175,
+    progress: 75, // Example progress value
   });
 
+  // Load data from local storage
   useEffect(() => {
-    const loadData = async () => {
-      const userData = await fetchCurrentUser(token);
-      setUserData(userData);
+    const storedExercises = getFromLocalStorage('exercises');
+    const storedWorkouts = getFromLocalStorage('workouts');
+    if (storedExercises) setExercises(storedExercises);
+    if (storedWorkouts) setMyWorkouts(storedWorkouts);
+  }, []);
 
-      const exerciseData = await fetchExercises(token);
-      setExercises(exerciseData);
-
-      const workoutData = await fetchUserWorkouts(token);
-      setMyWorkouts(workoutData);
-    };
-
-    loadData();
-  }, [token]);
-
-  const handleCreateExercise = async (exercise) => {
-    const newExercise = await addExercise(token, exercise);
-    setExercises([...exercises, newExercise]);
+  const handleCreateExercise = (exercise) => {
+    const updatedExercises = [...exercises, { ...exercise, id: exercises.length + 1 }];
+    setExercises(updatedExercises);
+    saveToLocalStorage('exercises', updatedExercises);
   };
 
   const handleAddExercise = (exercise) => {
     if (!isExerciseAdded(exercise)) {
-      setMyWorkouts([...myWorkouts, exercise]);
+      const updatedWorkouts = [...myWorkouts, exercise];
+      setMyWorkouts(updatedWorkouts);
+      saveToLocalStorage('workouts', updatedWorkouts);
     }
   };
 
   const handleAddSetAndDuration = (workout) => {
-    addWorkout(token, workout);
+    const updatedWorkouts = myWorkouts.map(w => w.id === workout.id ? workout : w);
+    setMyWorkouts(updatedWorkouts);
+    saveToLocalStorage('workouts', updatedWorkouts);
     setIsWorkoutModalOpen(false);
   };
 
@@ -432,6 +433,9 @@ const Home = () => {
                 >
                   <div>
                     <strong>{workout.name}</strong> - {workout.description}
+                  </div>
+                  <div>
+                    <strong>Sets:</strong> {workout.sets} <strong>Reps:</strong> {workout.reps} <strong>Duration:</strong> {workout.duration} min
                   </div>
                 </li>
               ))}

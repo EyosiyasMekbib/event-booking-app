@@ -40,11 +40,11 @@ export const addExercise = async (token, exercise) => {
 };
 
 export const fetchUserWorkouts = async (token) => {
-  const response = await axios.get(`${API_URL}/users/me/workouts`, authHeaders(token));
+  const response = await axios.get(`${API_URL}/workouts/me`, authHeaders(token));
   return response.data;
 };
 
 export const addWorkout = async (token, workout) => {
-  const response = await axios.post(`${API_URL}/users/me/workouts`, workout, authHeaders(token));
+  const response = await axios.post(`${API_URL}/workouts`, workout, authHeaders(token));
   return response.data;
 };
