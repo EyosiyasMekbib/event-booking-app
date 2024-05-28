@@ -3,50 +3,76 @@ import { useAuth } from './AuthContext';
 
 // CSS styles
 const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    fontFamily: 'Poppins, sans-serif',
+  },
+  mainContent: {
+    display: 'flex',
+    flexDirection: 'row',
+    flex: 1,
+    padding: '20px',
+    boxSizing: 'border-box',
+  },
+  column: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    margin: '10px',
+  },
   navbar: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '16px',
-    backgroundColor: '#2563eb',
+    backgroundColor: '#1E3A8A',  // Blue color
     color: '#fff',
     marginBottom: '20px',
     fontWeight: 'bold',
   },
-  container: {
-    display: 'flex',
-    gap: '20px',
-    padding: '20px',
-    height: '90vh',
-    boxSizing: 'border-box',
+  button: {
+    padding: '8px 16px',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    color: '#fff',
+    backgroundColor: '#1E3A8A',  // Blue color
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    transition: 'background-color 0.3s ease',
   },
-  card: {
-    flex: 1,
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    padding: '0 16px 16px 16px',
-    backgroundColor: '#fff',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    overflowY: 'auto',
-    position: 'relative',
+  buttonOutline: {
+    backgroundColor: 'transparent',
+    border: '1px solid #1E3A8A',
+    color: '#1E3A8A',
+    transition: 'background-color 0.3s ease, color 0.3s ease',
   },
-  cardHeader: {
-    marginBottom: '16px',
-    padding: '20px 5px',
-    backgroundColor: 'white',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1,
+  buttonHover: {
+    backgroundColor: '#1E3A8A',
+    color: '#fff',
   },
-  cardTitle: {
-    fontSize: '1.25rem',
-    fontWeight: 'bold',
+  buttonDisabled: {
+    backgroundColor: '#e0e0e0',
+    color: '#a0a0a0',
+    cursor: 'not-allowed',
+  },
+  createButton: {
+    marginBottom: '20px',
+    display: 'block',
+    width: '100%',
   },
   eventCard: {
     display: 'flex',
     alignItems: 'start',
     gap: '16px',
     marginBottom: '16px',
+    padding: '16px',
+    backgroundColor: '#fff',
+    borderRadius: '8px',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
   eventImage: {
     borderRadius: '8px',
@@ -65,39 +91,21 @@ const styles = {
     color: '#6b7280',
     marginBottom: '8px',
   },
-  button: {
-    padding: '8px 16px',
-    fontSize: '0.875rem',
-    fontWeight: '500',
-    color: '#fff',
-    backgroundColor: '#3b82f6',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    textDecoration: 'none',
-  },
-  buttonOutline: {
-    backgroundColor: 'transparent',
-    border: '1px solid #3b82f6',
-    color: '#3b82f6',
-  },
-  buttonDisabled: {
-    backgroundColor: '#d1d5db',
-    borderColor: '#d1d5db',
-    color: '#9ca3af',
-    cursor: 'not-allowed',
+  cardHeader: {
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    marginBottom: '10px',
   },
   modalBackdrop: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     position: 'fixed',
     top: 0,
     left: 0,
     width: '100%',
     height: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(5px)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 1000,
   },
   modalContent: {
@@ -105,39 +113,82 @@ const styles = {
     padding: '20px',
     borderRadius: '8px',
     width: '400px',
-    textAlign: 'center',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
   },
-  modalImage: {
+  formGroup: {
+    marginBottom: '15px',
+  },
+  formLabel: {
+    marginBottom: '5px',
+    display: 'block',
+    fontWeight: '500',
+  },
+  formInput: {
     width: '100%',
-    height: 'auto',
-    borderRadius: '8px',
-    marginBottom: '16px',
+    padding: '8px',
+    fontSize: '1rem',
+    borderRadius: '4px',
+    border: '1px solid #e0e0e0',
+    boxSizing: 'border-box',
   },
 };
 
-// Navbar Component
-const Navbar = () => {
-  const { logout, user } = useAuth();
+const Modal = ({ onClose, onSubmit, initialData }) => {
+  const [eventName, setEventName] = useState(initialData?.name || '');
+  const [eventDate, setEventDate] = useState(initialData?.date || '');
+  const [eventLocation, setEventLocation] = useState(initialData?.location || '');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({ ...initialData, name: eventName, date: eventDate, location: eventLocation });
+    onClose();
+  };
 
   return (
-    <div style={styles.navbar}>
-      <div>Event Manager</div>
-      <div>
-        {user && (
-          <>
-            <span style={{ marginRight: '16px' }}>{user.username} ({user.roles[0]})</span>
-            <button onClick={logout} style={{ ...styles.button, backgroundColor: 'transparent', border: '1px solid #fff', color: '#fff' }}>
-              Logout
-            </button>
-          </>
-        )}
+    <div style={styles.modalBackdrop} onClick={onClose}>
+      <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <h2>{initialData ? 'Edit Event' : 'Create Event'}</h2>
+        <form onSubmit={handleSubmit}>
+          <div style={styles.formGroup}>
+            <label style={styles.formLabel}>Event Name</label>
+            <input
+              type="text"
+              style={styles.formInput}
+              value={eventName}
+              onChange={(e) => setEventName(e.target.value)}
+              required
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label style={styles.formLabel}>Date</label>
+            <input
+              type="text"
+              style={styles.formInput}
+              value={eventDate}
+              onChange={(e) => setEventDate(e.target.value)}
+              required
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <label style={styles.formLabel}>Location</label>
+            <input
+              type="text"
+              style={styles.formInput}
+              value={eventLocation}
+              onChange={(e) => setEventLocation(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" style={styles.button}>
+            {initialData ? 'Update' : 'Create'}
+          </button>
+        </form>
       </div>
     </div>
   );
 };
 
-// EventCard Component
-const EventCard = ({ title, date, location, image, onView }) => {
+const EventCard = ({ title, date, location, image, onView, onDelete }) => {
   const defaultImage = "https://static.vecteezy.com/system/resources/thumbnails/004/141/669/small/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg";
 
   return (
@@ -156,27 +207,28 @@ const EventCard = ({ title, date, location, image, onView }) => {
         <button onClick={onView} style={{ ...styles.button, ...styles.buttonOutline }}>
           View
         </button>
+        <button onClick={onDelete} style={{ ...styles.button, ...styles.buttonOutline, backgroundColor: '#ff474c', borderColor: '#ff474c', color: '#fff', marginLeft: '10px' }}>
+          Delete
+        </button>
       </div>
     </div>
   );
 };
 
-// EventList Component
-const EventList = ({ title, events, onViewEvent }) => {
+const EventList = ({ title, events, onViewEvent, onDeleteEvent }) => {
   return (
-    <div style={styles.card}>
-      <div style={styles.cardHeader}>
-        <div style={styles.cardTitle}>{title}</div>
-      </div>
+    <div style={styles.column}>
+      <div style={styles.cardHeader}>{title}</div>
       <div>
         {events.map((event, index) => (
           <EventCard
             key={index}
-            title={event.title}
+            title={event.name}
             date={event.date}
             location={event.location}
             image={event.image}
-            onView={() => onViewEvent(event, title)}
+            onView={() => onViewEvent(event)}
+            onDelete={() => onDeleteEvent(event.id)}
           />
         ))}
       </div>
@@ -184,62 +236,85 @@ const EventList = ({ title, events, onViewEvent }) => {
   );
 };
 
-// Modal Component
-const Modal = ({ event, onClose, disableBuy }) => {
-  return (
-    <div style={styles.modalBackdrop} onClick={onClose}>
-      <div style={styles.modalContent} onClick={e => e.stopPropagation()}>
-        <img src={event.image} alt={event.title} style={styles.modalImage} />
-        <h2>{event.title}</h2>
-        <p>{event.date}</p>
-        <p>{event.location}</p>
-        <button style={{ ...styles.button, ...(disableBuy ? styles.buttonDisabled : {}) }} disabled={disableBuy}>
-          Buy
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// Home Component
 const Home = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [disableBuy, setDisableBuy] = useState(false);
+  const [events, setEvents] = useState([
+    { id: 1, name: 'Annual Gala Dinner', date: 'June 15, 2023 - 7:00 PM', location: 'Grand Ballroom, Acme Hotel', image: 'https://via.placeholder.com/400' },
+    { id: 2, name: 'Summer Picnic', date: 'July 10, 2023 - 12:00 PM', location: 'Acme Park', image: 'https://via.placeholder.com/400' },
+    // Add more events...
+  ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { logout, user } = useAuth();
 
-  const events = [
-    { title: 'Annual Gala Dinner', date: 'June 15, 2023 - 7:00 PM', location: 'Grand Ballroom, Acme Hotel', image: 'https://via.placeholder.com/400' },
-    { title: 'Summer Picnic', date: 'July 10, 2023 - 12:00 PM', location: 'Acme Park', image: 'https://via.placeholder.com/400' },
-    { title: 'Holiday Party', date: 'December 15, 2023 - 7:00 PM', location: 'Acme Ballroom', image: 'https://via.placeholder.com/400' },
-    { title: 'Company Retreat', date: 'August 1, 2023 - August 5, 2023', location: 'Acme Resort, Napa Valley', image: 'https://via.placeholder.com/400' },
-    { title: 'Charity Gala', date: 'November 10, 2023 - 6:00 PM', location: 'Acme Convention Center', image: 'https://via.placeholder.com/400' },
-    { title: 'Team Building Retreat', date: 'September 15, 2023 - September 17, 2023', location: 'Acme Retreat Center, Malibu', image: 'https://via.placeholder.com/400' },
-    { title: 'Spring Networking Event', date: 'April 20, 2023 - 6:00 PM', location: 'Acme Rooftop, San Francisco', image: 'https://via.placeholder.com/400' },
-    { title: 'Holiday Party 2022', date: 'December 10, 2022 - 7:00 PM', location: 'Acme Ballroom', image: 'https://via.placeholder.com/400' },
-    { title: 'Summer Picnic 2022', date: 'July 15, 2022 - 12:00 PM', location: 'Acme Park', image: 'https://via.placeholder.com/400' }
-  ];
+  const handleCreateEvent = (event) => {
+    // Simulate API call to create event
+    const newEvent = { id: events.length + 1, ...event };
+    setEvents([...events, newEvent]);
+  };
 
-  const handleViewEvent = (event, listTitle) => {
+  const handleUpdateEvent = (updatedEvent) => {
+    // Simulate API call to update event
+    setEvents(
+      events.map((event) =>
+        event.id === updatedEvent.id ? updatedEvent : event
+      )
+    );
+  };
+
+  const handleDeleteEvent = (id) => {
+    // Simulate API call to delete event
+    setEvents(events.filter((event) => event.id !== id));
+  };
+
+  const handleViewEvent = (event) => {
     setSelectedEvent(event);
-    setDisableBuy(listTitle === "My Events" || listTitle === "Past Events");
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setSelectedEvent(null);
+    setIsModalOpen(false);
   };
 
   return (
-    <div>
-      <Navbar />
-      <div style={styles.container}>
-        <EventList title="My Events" events={events} onViewEvent={handleViewEvent} />
-        <EventList title="Current Bought" events={events} onViewEvent={handleViewEvent} />
-        <EventList title="Past Events" events={events} onViewEvent={handleViewEvent} />
+    <div style={styles.container}>
+      <div style={styles.navbar}>
+        <div>Event Manager</div>
+        <div>
+          {user && (
+            <>
+              <span style={{ marginRight: '16px' }}>{user.username} ({user.roles[0]})</span>
+              <button onClick={logout} style={{ ...styles.button, backgroundColor: 'transparent', border: '1px solid #fff', color: '#fff' }}>
+                Logout
+              </button>
+            </>
+          )}
+        </div>
       </div>
-      {selectedEvent && (
+      <div style={styles.mainContent}>
+        <div style={styles.column}>
+          <button
+            style={{ ...styles.button, ...styles.createButton }}
+            onClick={() => setIsModalOpen(true)}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = styles.buttonHover.backgroundColor;
+              e.target.style.color = styles.buttonHover.color;
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = '#1E3A8A';
+              e.target.style.color = '#fff';
+            }}
+          >
+            Create Event
+          </button>
+          <EventList title="Events" events={events} onViewEvent={handleViewEvent} onDeleteEvent={handleDeleteEvent} />
+        </div>
+      </div>
+      {isModalOpen && (
         <Modal
-          event={selectedEvent}
           onClose={handleCloseModal}
-          disableBuy={disableBuy}
+          onSubmit={selectedEvent ? handleUpdateEvent : handleCreateEvent}
+          initialData={selectedEvent}
         />
       )}
     </div>
