@@ -200,22 +200,20 @@
     },
   };
 
-// CSS styles (same as before)
-
-const Modal = ({ onClose, onSubmit }) => {
-  const [exerciseName, setExerciseName] = useState('');
-  const [exerciseDescription, setExerciseDescription] = useState('');
+const Modal = ({ onClose, onSubmit, initialData }) => {
+  const [exerciseName, setExerciseName] = useState(initialData?.name || '');
+  const [exerciseDescription, setExerciseDescription] = useState(initialData?.description || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ name: exerciseName, description: exerciseDescription });
+    onSubmit({ name: exerciseName, description: exerciseDescription, id: initialData?.id });
     onClose();
   };
 
   return (
     <div style={styles.modalBackdrop} onClick={onClose}>
       <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <h2>Create Exercise</h2>
+        <h2>{initialData ? 'Edit Exercise' : 'Create Exercise'}</h2>
         <form onSubmit={handleSubmit}>
           <div style={styles.formGroup}>
             <label style={styles.formLabel}>Exercise Name</label>
@@ -238,7 +236,7 @@ const Modal = ({ onClose, onSubmit }) => {
             />
           </div>
           <button type="submit" style={styles.button}>
-            Create
+            {initialData ? 'Update' : 'Create'}
           </button>
         </form>
       </div>
@@ -247,9 +245,9 @@ const Modal = ({ onClose, onSubmit }) => {
 };
 
 const WorkoutModal = ({ workout, onClose, onSubmit }) => {
-  const [sets, setSets] = useState('');
-  const [reps, setReps] = useState('');
-  const [duration, setDuration] = useState('');
+  const [sets, setSets] = useState(workout?.sets || '');
+  const [reps, setReps] = useState(workout?.reps || '');
+  const [duration, setDuration] = useState(workout?.duration || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -259,7 +257,7 @@ const WorkoutModal = ({ workout, onClose, onSubmit }) => {
   return (
     <div style={styles.modalBackdrop} onClick={onClose}>
       <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <h2>Add Workout Details</h2>
+        <h2>{workout ? 'Edit Workout' : 'Add Workout Details'}</h2>
         <form onSubmit={handleSubmit}>
           <div style={styles.formGroup}>
             <label style={styles.formLabel}>Sets</label>
@@ -292,7 +290,7 @@ const WorkoutModal = ({ workout, onClose, onSubmit }) => {
             />
           </div>
           <button type="submit" style={styles.button}>
-            Add Workout
+            {workout ? 'Update Workout' : 'Add Workout'}
           </button>
         </form>
       </div>
@@ -305,6 +303,7 @@ const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWorkoutModalOpen, setIsWorkoutModalOpen] = useState(false);
   const [selectedWorkout, setSelectedWorkout] = useState(null);
+  const [selectedExercise, setSelectedExercise] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [myWorkouts, setMyWorkouts] = useState([]);
   const [userData, setUserData] = useState({
@@ -334,14 +333,19 @@ const Home = () => {
   };
 
   const handleCreateExercise = (exercise) => {
-    const updatedExercises = [...exercises, { ...exercise, id: exercises.length + 1 }];
+    let updatedExercises;
+    if (exercise.id) {
+      updatedExercises = exercises.map(ex => ex.id === exercise.id ? exercise : ex);
+    } else {
+      updatedExercises = [...exercises, { ...exercise, id: exercises.length + 1 }];
+    }
     setExercises(updatedExercises);
     saveToLocalStorage('exercises', updatedExercises);
   };
 
   const handleAddExercise = (exercise) => {
     if (!isExerciseAdded(exercise)) {
-      const updatedWorkouts = [...myWorkouts, exercise];
+      const updatedWorkouts = [...myWorkouts, { ...exercise, sets: '', reps: '', duration: '' }];
       setMyWorkouts(updatedWorkouts);
       saveToLocalStorage('workouts', updatedWorkouts);
       const progress = calculateProgress(updatedWorkouts);
@@ -363,6 +367,19 @@ const Home = () => {
     setIsWorkoutModalOpen(true);
   };
 
+  const handleDeleteWorkout = (workoutId) => {
+    const updatedWorkouts = myWorkouts.filter(workout => workout.id !== workoutId);
+    setMyWorkouts(updatedWorkouts);
+    saveToLocalStorage('workouts', updatedWorkouts);
+    const progress = calculateProgress(updatedWorkouts);
+    setUserData((prevData) => ({ ...prevData, progress }));
+  };
+
+  const handleEditWorkout = (workout) => {
+    setSelectedWorkout(workout);
+    setIsWorkoutModalOpen(true);
+  };
+
   const isExerciseAdded = (exercise) => {
     return myWorkouts.some(workout => workout.name === exercise.name);
   };
@@ -380,7 +397,7 @@ const Home = () => {
         <div style={styles.userInfo}>
           {userData && (
             <>
-              <span style={styles.username}>{userData.username}</span>
+              <span style={styles.username}>{user ? user.username : userData.username}</span>
               <button
                 onClick={logout}
                 style={{ ...styles.button, ...styles.buttonOutline }}
@@ -409,7 +426,7 @@ const Home = () => {
                 style={styles.profilePicture}
               />
               <div style={styles.profileDetails}>
-                <div style={styles.detailItem}><strong>Name:</strong> {userData.username}</div>
+                <div style={styles.detailItem}><strong>Name:</strong> {user ? user.username : userData.username}</div>
                 <div style={styles.detailItem}><strong>Weight:</strong> {userData.weight} kg</div>
                 <div style={styles.detailItem}><strong>Height:</strong> {userData.height} cm</div>
                 <div style={styles.detailItem}>
@@ -436,7 +453,6 @@ const Home = () => {
                 <li
                   key={index}
                   style={styles.exerciseListItem}
-                  onClick={() => handleWorkoutClick(workout)}
                   onMouseOver={(e) => {
                     e.currentTarget.style.backgroundColor = styles.exerciseListItemHover.backgroundColor;
                   }}
@@ -453,6 +469,20 @@ const Home = () => {
                         <div><strong>Duration:</strong> {workout.duration} mins</div>
                       </>
                     )}
+                  </div>
+                  <div>
+                    <button
+                      style={{ ...styles.button, ...styles.addButton }}
+                      onClick={() => handleEditWorkout(workout)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      style={{ ...styles.button, ...styles.addButton }}
+                      onClick={() => handleDeleteWorkout(workout.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </li>
               ))}
@@ -515,6 +545,7 @@ const Home = () => {
         <Modal
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleCreateExercise}
+          initialData={selectedExercise}
         />
       )}
       {isWorkoutModalOpen && selectedWorkout && (
